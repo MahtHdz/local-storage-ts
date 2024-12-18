@@ -1,0 +1,79 @@
+volumes:
+  mongodb-data-1:
+    name: api-storage-mongodb-rs-data-1-dev
+    driver: local
+    external: false
+  mongodb-data-2:
+    name: api-storage-mongodb-rs-data-2-dev
+    driver: local
+    external: false
+  mongodb-data-3:
+    name: api-storage-mongodb-rs-data-3-dev
+    driver: local
+    external: false
+  mongodb-config-1:
+    name: api-storage-mongodb-rs-config-1-dev
+    driver: local
+    external: false
+  mongodb-config-2:
+    name: api-storage-mongodb-rs-config-2-dev
+    driver: local
+    external: false
+  mongodb-config-3:
+    name: api-storage-mongodb-rs-config-3-dev
+    driver: local
+    external: false
+
+services:
+  mongodb-1:
+    image: mongo:latest
+    container_name: api-storage-mongodb-rs-1-dev
+    environment:
+      MONGO_REPLICA_SET_NAME: rs-storage
+      MONGO_INITDB_DATABASE: storage
+    entrypoint: ["/bin/bash", "/scripts/entrypoint.sh"]
+    ports:
+      - "27017:27017"
+    restart: always
+    volumes:
+      - mongodb-data-1:/data/db
+      - mongodb-config-1:/data/configdb
+      - ./scripts/mongodb:/scripts:r
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "mongo.cluster.remote:${MONGO_CLUSTER_REMOTE_IP}"
+
+  mongodb-2:
+    image: mongo:latest
+    container_name: api-storage-mongodb-rs-2-dev
+    environment:
+      MONGO_REPLICA_SET_NAME: rs-storage
+      MONGO_INITDB_DATABASE: storage
+    command: ["mongod", "--replSet", "rs-storage", "--dbpath", "/data/db", "--bind_ip_all"]
+    ports:
+      - "27018:27017"
+    restart: always
+    volumes:
+      - mongodb-data-2:/data/db
+      - mongodb-config-2:/data/configdb
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "mongo.cluster.remote:${MONGO_CLUSTER_REMOTE_IP}"
+
+  mongodb-3:
+    image: mongo:latest
+    container_name: api-storage-mongodb-rs-3-dev
+    environment:
+      MONGO_REPLICA_SET_NAME: rs-storage
+      MONGO_INITDB_DATABASE: storage
+    command: ["mongod", "--replSet", "rs-storage", "--dbpath", "/data/db", "--bind_ip_all"]
+    ports:
+      - "27019:27017"
+    restart: always
+    volumes:
+      - mongodb-data-3:/data/db
+      - mongodb-config-3:/data/configdb
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "mongo.cluster.remote:${MONGO_CLUSTER_REMOTE_IP}"
+

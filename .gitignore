@@ -1,0 +1,6 @@
+.env
+dist
+storage
+.vscode
+node_modules
+pnpm-lock.yaml
