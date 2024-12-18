@@ -1,0 +1,6 @@
+{
+    "domains":[
+        "http://localhost:3000"
+    ],
+    "errorMessage": "The CORS policy for this origin doesn't allow access from the particular origin."
+}
