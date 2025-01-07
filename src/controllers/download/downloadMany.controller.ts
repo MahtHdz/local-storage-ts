@@ -3,14 +3,16 @@ import { v4 as uuidv4 } from 'uuid';
 
 import {
   copyFile,
-  createFolder,
   zipFolder,
+  deleteFile,
+  createFolder,
   pathConstructor,
-  deleteFileOrFolder,
-  removeFilesInFolder
+  deleteDirectory,
+  removeFilesInFolder,
 } from '@storage-api/utils/fileUtils'
 
 import File from '@storage-api/models/file.model';
+import IFile from '@storage-api/interfaces/models/IFile';
 
 interface CustomRequest extends Request {
   body: {
@@ -19,9 +21,9 @@ interface CustomRequest extends Request {
 }
 
 const downloadMany = async (req: CustomRequest, res: Response) => {
-  let response = null;
-  const { ids } = req.body ?? { ids: []};
-  const tmpFolderName = `tmp_${uuidv4()}`;
+  const filesIds = req.body.ids;
+  let documents: IFile[] | null = null;
+  const tmpFolderName = `${uuidv4()}`;
   const tmpFolderPath = pathConstructor([
     global.__storagePath,
     "tmp",
@@ -29,24 +31,15 @@ const downloadMany = async (req: CustomRequest, res: Response) => {
   ]);
   const tmpFolderContentPath = pathConstructor([tmpFolderPath, "content"]);
   try {
-    await createFolder(tmpFolderPath);
-  } catch (error: any) {
-    return res.status(400).json(error.message);
-  }
-  try {
-    await createFolder(tmpFolderContentPath);
-  } catch (error: any) {
-    return res.status(400).json(error.message);
-  }
-  try {
-    response = await File.find({ _id: { $in: ids } });
+    await createFolder(tmpFolderContentPath, true);
+    const response = await File.find({ _id: { $in: filesIds } });
+    documents = response;
   } catch (error: any) {
     return res.status(404).json(error.message);
   }
-  for (let i = 0; i < response.length; i++) {
-    const file = response[i];
-    const filepath = file.filepath;
-    const filename = file.filename;
+  for (let i = 0; i < documents.length; i++) {
+    const file = documents[i];
+    const { filepath, filename } = file;
     const destination = pathConstructor([tmpFolderContentPath, filename]);
     try {
       await copyFile(filepath, destination);
@@ -56,7 +49,6 @@ const downloadMany = async (req: CustomRequest, res: Response) => {
   }
   const zipName = `${uuidv4()}.zip`;
   const zipPath = pathConstructor([tmpFolderPath, zipName]);
-  // console.log('zipPath', zipPath)
   const source = pathConstructor([tmpFolderContentPath, "."]);
   try {
     await zipFolder(source, zipPath);
@@ -73,9 +65,9 @@ const downloadMany = async (req: CustomRequest, res: Response) => {
       return res.status(404).json(error.message);
     }
     try {
-      await deleteFileOrFolder(zipPath);
-      await deleteFileOrFolder(tmpFolderContentPath);
-      await deleteFileOrFolder(tmpFolderPath);
+      await deleteFile(zipPath);
+      await deleteDirectory(tmpFolderContentPath);
+      await deleteDirectory(tmpFolderPath);
     } catch (error: any) {
       console.log(error.message);
     }
