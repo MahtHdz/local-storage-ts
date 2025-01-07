@@ -1,0 +1,352 @@
+{
+	"info": {
+		"_postman_id": "8d73b16d-d486-45dd-8bd1-61d737adfe6d",
+		"name": "local-storage-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16086689"
+	},
+	"item": [
+		{
+			"name": "Upload",
+			"item": [
+				{
+					"name": "uploadOneFile",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "",
+									"type": "file",
+									"src": "/home/maht/Pictures/cat.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{local-storage-api}}/upload/file/{userId}",
+							"host": [
+								"{{local-storage-api}}"
+							],
+							"path": [
+								"upload",
+								"file",
+								"{userId}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "uploadMultipleFIles",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "",
+									"type": "file",
+									"src": [
+										"/home/maht/Pictures/Wallpapers/3d344csh9tb11.png",
+										"/home/maht/Pictures/Wallpapers/1296129.jpg",
+										"/home/maht/Pictures/Wallpapers/4545420-dedsec-watch_dogs-dark-hacking.jpg"
+									]
+								}
+							]
+						},
+						"url": {
+							"raw": "{{local-storage-api}}/upload/files/{userId}",
+							"host": [
+								"{{local-storage-api}}"
+							],
+							"path": [
+								"upload",
+								"files",
+								"{userId}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Information",
+			"item": [
+				{
+					"name": "root",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001"
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "api",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{local-storage-api}}",
+							"host": [
+								"{{local-storage-api}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Download",
+			"item": [
+				{
+					"name": "downloadOneFile",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{local-storage-api}}/download/file/{id}",
+							"host": [
+								"{{local-storage-api}}"
+							],
+							"path": [
+								"download",
+								"file",
+								"{id}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "downloadManyFiles",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ids\": [\n        \"id1\",\n        \"id2\",\n        \"id3\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{local-storage-api}}/download/files",
+							"host": [
+								"{{local-storage-api}}"
+							],
+							"path": [
+								"download",
+								"files"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Delete",
+			"item": [
+				{
+					"name": "deleteMany",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ids\": [\n        \"id1\",\n        \"id2\",\n        \"id3\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{local-storage-api}}/delete/files",
+							"host": [
+								"{{local-storage-api}}"
+							],
+							"path": [
+								"delete",
+								"files"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteOneFile",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{local-storage-api}}/delete/file/{id}",
+							"host": [
+								"{{local-storage-api}}"
+							],
+							"path": [
+								"delete",
+								"file",
+								"{id}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Update",
+			"item": [
+				{
+					"name": "updateOneDocument",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"extension\": \"png\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{local-storage-api}}/update/document/{id}",
+							"host": [
+								"{{local-storage-api}}"
+							],
+							"path": [
+								"update",
+								"document",
+								"{id}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get",
+			"item": [
+				{
+					"name": "getAllDocuments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{local-storage-api}}/get/documents/all",
+							"host": [
+								"{{local-storage-api}}"
+							],
+							"path": [
+								"get",
+								"documents",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getOneDocument",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{local-storage-api}}/get/document/{id}",
+							"host": [
+								"{{local-storage-api}}"
+							],
+							"path": [
+								"get",
+								"document",
+								"{id}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getOneWithFilter",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"key\": \"alias\",\n    \"value\": \"uuid4.png\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{local-storage-api}}/get/document/filter",
+							"host": [
+								"{{local-storage-api}}"
+							],
+							"path": [
+								"get",
+								"document",
+								"filter"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getMany",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ids\": [\n        \"id1\",\n        \"id2\",\n        \"id3\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{local-storage-api}}/get/documents",
+							"host": [
+								"{{local-storage-api}}"
+							],
+							"path": [
+								"get",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
