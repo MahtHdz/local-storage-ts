@@ -4,13 +4,11 @@ import { promisify } from "util";
 import { v4 as uuidv4 } from "uuid";
 import { exec } from "child_process";
 import {
+  rm,
   mkdir,
-  rmdir,
   unlink,
   access,
-  rename,
   readdir,
-  readFile,
   writeFile,
   constants,
   copyFile as nodeCopyFile,
@@ -25,7 +23,6 @@ import {
 import fileUpload from "express-fileupload";
 import IFile from "@storage-api/interfaces/models/IFile";
 import allowedFileTypes from "@storage-api/constants/fileTypes";
-import IZipFileObj from "@storage-api/interfaces/utils/IZipFileObj";
 
 export const executeCommand = async (command: string) => {
   let output = null;
@@ -96,7 +93,7 @@ export const deleteFile = async (path: PathLike) => {
 export const deleteDirectory = async (path: PathLike) => {
   let wasDeleted = false;
   try {
-    await rmdir(path, {
+    await rm(path, {
       recursive: true,
     });
     wasDeleted = true;
@@ -128,42 +125,6 @@ export const deleteDirectoryContent = async (path: PathLike) => {
   return wasDeleted;
 };
 
-export const deleteFileOrFolder = async (path: PathLike) => {
-  let isAFile = true;
-  let wasFound = false;
-  let validPath = false;
-  try {
-    validPath = await fileOrFolderExist(path);
-    await readFile(path);
-  } catch (error) {
-    isAFile = false;
-  }
-  if (!validPath) return wasFound;
-  if (!isAFile) {
-    try {
-      const entries = await readdir(path, { withFileTypes: true });
-      for (const entry of entries) {
-        const thisPath = ptResolve(path.toString(), entry.name);
-        if (await fileOrFolderExist(thisPath)) {
-          if (entry.isDirectory()) {
-          }
-          entry.isDirectory() && (await deleteFileOrFolder(thisPath));
-          entry.isFile() && (await unlink(thisPath));
-        }
-      }
-      await rmdir(path);
-      wasFound = true;
-    } catch (error: any) {
-      console.error(error.message);
-      return wasFound;
-    }
-  } else {
-    await unlink(path);
-    wasFound = true;
-  }
-  return wasFound;
-};
-
 export const createFolder = async (path: PathLike, recursive = false) => {
   let wasCreated = false;
   const options = { recursive };
@@ -192,7 +153,7 @@ export const removeFilesInFolder = async (folderPath: PathLike) => {
     const folderContent = await getFolderContent(folderPath);
     // console.log(folderContent)
     for (const file of folderContent!) {
-      await deleteFileOrFolder(pathConstructor([folderPath, file.name]));
+      await deleteFile(pathConstructor([folderPath, file.name]));
     }
     succeeded = true;
   } catch (error: any) {
@@ -293,41 +254,6 @@ export const craftFileObject = (
 };
 
 /**
- * @summary Unzip a file
- * @param zipFileObj
- * @param zipFileObj.filepath - Path to the file to unzip
- * @param zipFileObj.destination - Path where the file will be unzipped
- * @param zipFileObj.type - Type of the file to unzip
- * @returns succeeded
- */
-export const unzipFile = async (zipFileObj: IZipFileObj) => {
-  type ZipType = "application/zip";
-  const unzipSystemCommand =
-    platform() === "win32"
-      ? `powershell Expand-Archive ${zipFileObj.filepath} -DestinationPath ${zipFileObj.destination}`
-      : `unzip ${zipFileObj.filepath} -d ${zipFileObj.destination}`;
-  let succeeded = false;
-  if (
-    !zipFileObj?.type ||
-    (zipFileObj?.type as unknown as string) !== "application/zip"
-  )
-    return succeeded;
-  try {
-    await createFolder(zipFileObj.destination);
-  } catch (error: any) {
-    console.error(error.message);
-    return succeeded;
-  }
-  try {
-    await executeCommand(unzipSystemCommand);
-    succeeded = true;
-  } catch (error: any) {
-    console.error(error.message);
-  }
-  return succeeded;
-};
-
-/**
  * @summary Compress a file
  * @param filepath - Path to the file to compress
  * @param destinationPath - Path where the file will be compressed
@@ -356,7 +282,6 @@ const fileUtils = {
   pathConstructor,
   craftFileObject,
   fileOrFolderExist,
-  deleteFileOrFolder,
   removeFilesInFolder,
 };
 

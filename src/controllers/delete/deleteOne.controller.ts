@@ -10,15 +10,6 @@ const deleteOne = async (req: Request, res: Response) => {
 
   try {
     const fileId = req.params.id;
-
-    if (!fileId) {
-      await session.abortTransaction();
-      session.endSession();
-      return res
-        .status(400)
-        .json({ message: "Missing required parameter: id" });
-    }
-
     const foundFile = await File.findOneAndDelete({ _id: fileId }, { session });
 
     if (!foundFile) {
