@@ -1,0 +1,98 @@
+volumes:
+  mongodb-data-1:
+    name: api-storage-mongodb-rs-data-1-production
+    driver: local
+    external: false
+  mongodb-data-2:
+    name: api-storage-mongodb-rs-data-2-production
+    driver: local
+    external: false
+  mongodb-data-3:
+    name: api-storage-mongodb-rs-data-3-production
+    driver: local
+    external: false
+  mongodb-config-1:
+    name: api-storage-mongodb-rs-config-1-production
+    driver: local
+    external: false
+  mongodb-config-2:
+    name: api-storage-mongodb-rs-config-2-production
+    driver: local
+    external: false
+  mongodb-config-3:
+    name: api-storage-mongodb-rs-config-3-production
+    driver: local
+    external: false
+  storage-data:
+    name: api-storage-data-production
+    driver: local
+    external: false
+
+services:
+  mongodb-1:
+    image: mongo:latest
+    container_name: api-storage-mongodb-rs-1-production
+    environment:
+      MONGO_REPLICA_SET_NAME: ${MONGO_REPLICA_SET_NAME}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+    entrypoint: ["/bin/bash", "/scripts/entrypoint.sh"]
+    ports:
+      - "27017:27017"
+    restart: always
+    volumes:
+      - mongodb-data-1:/data/db
+      - mongodb-config-1:/data/configdb
+      - ./scripts/mongodb:/scripts:r
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  mongodb-2:
+    image: mongo:latest
+    container_name: api-storage-mongodb-rs-2-production
+    environment:
+      MONGO_REPLICA_SET_NAME: ${MONGO_REPLICA_SET_NAME}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+    command: ["mongod", "--replSet", "rs-storage", "--dbpath", "/data/db", "--bind_ip_all"]
+    ports:
+      - "27018:27017"
+    restart: always
+    volumes:
+      - mongodb-data-2:/data/db
+      - mongodb-config-2:/data/configdb
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  mongodb-3:
+    image: mongo:latest
+    container_name: api-storage-mongodb-rs-3-production
+    environment:
+      MONGO_REPLICA_SET_NAME: ${MONGO_REPLICA_SET_NAME}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+    command: ["mongod", "--replSet", "rs-storage", "--dbpath", "/data/db", "--bind_ip_all"]
+    ports:
+      - "27019:27017"
+    restart: always
+    volumes:
+      - mongodb-data-3:/data/db
+      - mongodb-config-3:/data/configdb
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  storage:
+    image: maht/local-storage-ts:latest
+    container_name: api-storage-production
+    expose:
+      - 3001
+    ports:
+      - "3001:3001"
+    env_file:
+      - .env
+    restart: always
+    volumes:
+      - storage-data:/opt/app/storage
+    depends_on:
+      - mongodb-1
+      - mongodb-2
+      - mongodb-3
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
